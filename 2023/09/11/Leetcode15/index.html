@@ -67,7 +67,7 @@
 <meta property="og:site_name" content="SteinsGate">
 <meta property="og:description" content="题目描述15.三数之和 给你一个整数数组 nums ，判断是否存在三元组 [nums[i], nums[j], nums[k]] 满足 i != j、i != k 且 j != k ，同时还满足 nums[i] + nums[j] + nums[k] == 0 。请 你返回所有和为 0 且不重复的三元组。 注意：答案中不可以包含重复的三元组。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2023-09-11T08:47:52.580Z">
+<meta property="og:updated_time" content="2023-09-11T09:03:35.734Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Leetcode15">
 <meta name="twitter:description" content="题目描述15.三数之和 给你一个整数数组 nums ，判断是否存在三元组 [nums[i], nums[j], nums[k]] 满足 i != j、i != k 且 j != k ，同时还满足 nums[i] + nums[j] + nums[k] == 0 。请 你返回所有和为 0 且不重复的三元组。 注意：答案中不可以包含重复的三元组。">
@@ -324,7 +324,7 @@
                 
               
 
-              <time title="创建时间：2023-09-11 16:44:14 / 修改时间：16:47:52" itemprop="dateCreated datePublished" datetime="2023-09-11T16:44:14+08:00">2023-09-11</time>
+              <time title="创建时间：2023-09-11 16:44:14 / 修改时间：17:03:35" itemprop="dateCreated datePublished" datetime="2023-09-11T16:44:14+08:00">2023-09-11</time>
             </span>
           
             
@@ -341,7 +341,7 @@
               
                 <span class="post-meta-item-text">本文字数：</span>
               
-              <span>594</span>
+              <span>4.4k</span>
             </span>
           
             <span class="post-meta-item" title="阅读时长">
@@ -351,7 +351,7 @@
               
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
               
-              <span>1 分钟</span>
+              <span>4 分钟</span>
             </span>
           
 
@@ -380,6 +380,22 @@
 <li><code>3 &lt;= nums.length &lt;= 3000</code></li>
 <li><code>-105 &lt;= nums[i] &lt;= 105</code></li>
 </ul>
+<h1 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h1><ol>
+<li>初步：三重循环遍历nums[i,j,k]，判断是否和为0，复杂度为$O(n^3)$</li>
+<li>优化：二重循环遍历nums[i]与num[j]，计算得到sum=nums[i]+num[j]，则第三个元素必须为<code>0-nums[i]-nums[j]</code></li>
+<li>难点：如何去重，保证答案中不可以包含重复的三元组。</li>
+</ol>
+<h1 id="算法步骤"><a href="#算法步骤" class="headerlink" title="算法步骤"></a>算法步骤</h1><ol>
+<li>输入nums数组，对nums数组进行排序，得到nums_sorted</li>
+<li>然后遍历nums_sorted数组并对各元素计数，得到nums_unique和nums_unique_quantity。其中nums_unique按升序存储nums_sorted的不重复元素，等效于<code>set(sort(nums))</code>，而nums_unique_quantity则为nums_unique各位置元素在原始nums数组中的数目。</li>
+<li>遍历取数，双指针+二分优化<ol>
+<li>指针i遍历nums_unique的每一个位置，并对nums_unique_quantity[i]减1，相当于取了一个数。</li>
+<li>指针j从指针i当前位置开始判断，若<code>nums_unique_quantity[i]&gt;=1</code>，则取当前位置，否则<code>j++</code>;</li>
+<li>取完nums_unique[i]与nums_unique[j]后，先确定二分搜索的起始位置k，与第二步同理，k=j或者j+1，然后对nums_unique数组在<code>&lt;k,end&gt;</code>区间进行二分搜索，判断是否能找到<code>0-nums_unique[i]-nums_unique[j]</code>。若能，则将三元组添加进答案。</li>
+</ol>
+</li>
+</ol>
+<h1 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    vector&lt;vector&lt;int&gt;&gt; threeSum(vector&lt;int&gt;&amp; nums) &#123;</span><br><span class="line">        vector&lt;vector&lt;int&gt;&gt; answer;  // 存储结果的二维向量</span><br><span class="line">        sort(nums.begin(), nums.end());  // 排序输入的整数向量</span><br><span class="line"></span><br><span class="line">        vector&lt;int&gt; nums_uniq;  // 存储去重后的元素</span><br><span class="line">        vector&lt;int&gt; nums_uniq_quantity;  // 存储去重后的元素的数量</span><br><span class="line"></span><br><span class="line">        int curr_num = 0;  // 当前数字</span><br><span class="line">        int curr_num_quantity = 0;  // 当前数字的数量</span><br><span class="line"></span><br><span class="line">        // 遍历排序后的整数向量，进行去重操作</span><br><span class="line">        for (int i = 0; i &lt; nums.size(); i++) &#123;</span><br><span class="line">            if (i &lt;= 0) &#123;</span><br><span class="line">                curr_num = nums[0];  // 初始化当前数字</span><br><span class="line">                curr_num_quantity = 1;  // 初始化当前数字的数量</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                if (curr_num == nums[i]) &#123;</span><br><span class="line">                    curr_num_quantity += 1;  // 数字相同，数量加一</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    nums_uniq.push_back(curr_num);  // 将当前数字加入去重后的元素向量</span><br><span class="line">                    nums_uniq_quantity.push_back(curr_num_quantity);  // 将当前数字的数量加入去重后的元素数量向量</span><br><span class="line">                    curr_num = nums[i];  // 更新当前数字为新的数字</span><br><span class="line">                    curr_num_quantity = 1;  // 重置当前数字的数量为1</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        nums_uniq.push_back(curr_num);  // 将最后一个数字加入去重后的元素向量</span><br><span class="line">        nums_uniq_quantity.push_back(curr_num_quantity);  // 将最后一个数字的数量加入去重后的元素数量向量</span><br><span class="line"></span><br><span class="line">        // 使用双指针和去重后的元素进行三数之和计算</span><br><span class="line">        for (int i = 0; i &lt; nums_uniq.size(); i++) &#123;</span><br><span class="line">            int nums_uniq_i = nums_uniq[i];  // 获取第一个元素</span><br><span class="line">            nums_uniq_quantity[i] -= 1;  // 将第一个元素的数量减一，避免重复计算</span><br><span class="line"></span><br><span class="line">            for (int j = i; j &lt; nums_uniq.size(); j++) &#123;</span><br><span class="line">                if (j &lt; nums_uniq_quantity.size() &amp;&amp; nums_uniq_quantity[j] &lt; 1) &#123;</span><br><span class="line">                    j++;  // 如果第二个元素的数量已经为0，则跳过</span><br><span class="line">                &#125;</span><br><span class="line">                if (j &gt;= nums_uniq.size()) &#123;</span><br><span class="line">                    break;  // 超出索引范围，结束内层循环</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                int nums_uniq_j = nums_uniq[j];  // 获取第二个元素</span><br><span class="line">                nums_uniq_quantity[j] -= 1;  // 将第二个元素的数量减一，避免重复计算</span><br><span class="line"></span><br><span class="line">                int k = j;</span><br><span class="line">                if (k &lt; nums_uniq_quantity.size() &amp;&amp; nums_uniq_quantity[k] &lt; 1) &#123;</span><br><span class="line">                    k++;  // 如果第三个元素的数量已经为0，则跳过</span><br><span class="line">                &#125;</span><br><span class="line">                if (k &gt;= nums_uniq.size()) &#123;</span><br><span class="line">                    continue;  // 超出索引范围，继续下一次内层循环</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                int target = -nums_uniq_i - nums_uniq_j;  // 计算目标值（第三个元素）</span><br><span class="line">                int startIndex = k;  // 指定起始位置的索引</span><br><span class="line">                auto startIterator = nums_uniq.begin() + startIndex;  // 获取指定起始位置的迭代器</span><br><span class="line">                auto it = std::lower_bound(startIterator, nums_uniq.end(), target);  // 在指定范围内进行二分搜索</span><br><span class="line"></span><br><span class="line">                if (it != nums_uniq.end() &amp;&amp; *it == target) &#123;</span><br><span class="line">                    // 找到符合条件的三元组，将其加入结果向量</span><br><span class="line">                    answer.push_back(vector&lt;int&gt;(&#123;nums_uniq_i, nums_uniq_j, -nums_uniq_i - nums_uniq_j&#125;));</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                nums_uniq_quantity[j] += 1;  // 恢复第二个元素的数量</span><br><span class="line">            &#125;</span><br><span class="line">            nums_uniq_quantity[i] += 1;  // 恢复第一个元素的数量</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return answer;  // 返回结果向量</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -471,7 +487,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#题目描述"><span class="nav-number">1.</span> <span class="nav-text">题目描述</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#题目描述"><span class="nav-number">1.</span> <span class="nav-text">题目描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解题思路"><span class="nav-number">2.</span> <span class="nav-text">解题思路</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#算法步骤"><span class="nav-number">3.</span> <span class="nav-text">算法步骤</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#具体实现"><span class="nav-number">4.</span> <span class="nav-text">具体实现</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -529,12 +545,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="站点总字数">205k</span>
+    <span title="站点总字数">209k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">3:06</span>
+    <span title="站点阅读时长">3:10</span>
 </div>
 
 
