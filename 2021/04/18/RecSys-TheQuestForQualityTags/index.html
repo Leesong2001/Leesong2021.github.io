@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <meta name="google-site-verification" content="1TSpI3V3af8vd0EtsjdHFFSQr-O_2Qw1uiHQk2QjURM"/>
+  <meta name="baidu-site-verification" content="true">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-corner-indicator.min.css?v=1.0.2">
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","width":240,"display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":2,"unescape":false,"preload":true},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="论文阅读：The quest for quality tags提出的核心问题 标签评分接口(tag rating) 怎样的标签评价接口(rating interfaces)可以获得最多的评分？ 设计者应该实现怎样的标签评价接口，选择更好的标签来展示给用户？   标签选择方法(tag selection method) 我们能否根据其他用户的行为来确定一个用户想要看到的标签？ 我们可以根据用户自己的">
+<meta name="keywords" content="RecSys">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RecSys_TheQuestForQualityTags">
+<meta property="og:url" content="https://a2864366212.github.io/2021/04/18/RecSys-TheQuestForQualityTags/index.html">
+<meta property="og:site_name" content="SteinsGate">
+<meta property="og:description" content="论文阅读：The quest for quality tags提出的核心问题 标签评分接口(tag rating) 怎样的标签评价接口(rating interfaces)可以获得最多的评分？ 设计者应该实现怎样的标签评价接口，选择更好的标签来展示给用户？   标签选择方法(tag selection method) 我们能否根据其他用户的行为来确定一个用户想要看到的标签？ 我们可以根据用户自己的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-04-18T06:46:21.602Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RecSys_TheQuestForQualityTags">
+<meta name="twitter:description" content="论文阅读：The quest for quality tags提出的核心问题 标签评分接口(tag rating) 怎样的标签评价接口(rating interfaces)可以获得最多的评分？ 设计者应该实现怎样的标签评价接口，选择更好的标签来展示给用户？   标签选择方法(tag selection method) 我们能否根据其他用户的行为来确定一个用户想要看到的标签？ 我们可以根据用户自己的">
+  <link rel="canonical" href="https://a2864366212.github.io/2021/04/18/RecSys-TheQuestForQualityTags/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>RecSys_TheQuestForQualityTags | SteinsGate</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SteinsGate</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Good luck to you !! My Friends.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-schedule">
+      
+    
+
+    <a href="/schedule/" rel="section"><i class="fa fa-fw fa-calendar"></i>日程表</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-sitemap">
+      
+    
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-fw fa-sitemap"></i>站点地图</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-commonweal">
+      
+    
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a href="javascript:;" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>搜索</a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/a2864366212" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://a2864366212.github.io/2021/04/18/RecSys-TheQuestForQualityTags/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="李松">
+      <meta itemprop="description" content="NoGameNoLife">
+      <meta itemprop="image" content="/images/MyAvatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SteinsGate">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">RecSys_TheQuestForQualityTags
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-04-18 13:42:56 / 修改时间：14:46:21" itemprop="dateCreated datePublished" datetime="2021-04-18T13:42:56+08:00">2021-04-18</time>
+            </span>
+          
+            
+
+            
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>2k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>2 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="论文阅读：The-quest-for-quality-tags"><a href="#论文阅读：The-quest-for-quality-tags" class="headerlink" title="论文阅读：The quest for quality tags"></a>论文阅读：<a href="https://dl.acm.org/doi/abs/10.1145/1316624.1316678" target="_blank" rel="noopener">The quest for quality tags</a></h1><h2 id="提出的核心问题"><a href="#提出的核心问题" class="headerlink" title="提出的核心问题"></a>提出的核心问题</h2><ol>
+<li>标签评分接口(tag rating)<ol>
+<li>怎样的标签评价接口(rating interfaces)可以获得最多的评分？</li>
+<li><strong>设计者应该实现怎样的标签评价接口，选择更好的标签来展示给用户？</strong></li>
+</ol>
+</li>
+<li>标签选择方法(tag selection method)<ol>
+<li>我们能否根据其他用户的行为来确定一个用户想要看到的标签？</li>
+<li>我们可以根据用户自己的评分来确定用户想要看到的标签吗？</li>
+<li>我们可以根据其他用户的评分来确定用户想要看到的标签吗？</li>
+</ol>
+</li>
+</ol>
+<a id="more"></a>
+<h2 id="前人的结论"><a href="#前人的结论" class="headerlink" title="前人的结论"></a>前人的结论</h2><ul>
+<li>用户看到的标签会影响他们自己创建的标签</li>
+<li>若将标签分为事实标签、主观标签和个人标签，用户通常更喜欢事实标签而不是主观标签，强烈不喜欢个人标签</li>
+</ul>
+<h2 id="标签评分接口"><a href="#标签评分接口" class="headerlink" title="标签评分接口"></a>标签评分接口</h2><p>回答问题：<strong>怎样的标签评价接口(rating interfaces)可以获得最多的评分</strong></p>
+<ol>
+<li>在MovieLens电影推荐系统上引入了标签的评分功能。评分是通过点赞/点踩来实现的，理由是星级评分占用较多的屏幕空间，同时进行了四组对比试验：<ul>
+<li>C组没有显示任何评分部件，即不可对标签评分，无标签评分反馈</li>
+<li>U组只可以点赞，只允许正反馈</li>
+<li>D组只可以点踩，只允许负反馈</li>
+<li>UD可以点赞/点踩</li>
+</ul>
+</li>
+<li>结论<ol>
+<li>UD组收集到最多的评价</li>
+<li>用户倾向于点踩</li>
+</ol>
+</li>
+</ol>
+<p>回答问题：<strong>设计者应该实现怎样的标签评价接口，选择更好的标签来展示给用户？</strong></p>
+<ol>
+<li><p>系统应该同时提供正面/负面评价功能（如：点赞、点踩）</p>
+<p>论文中的实验结论：</p>
+<ol>
+<li>当被系统同时提供正面/负面评价功能时，用户将产生更多的正面评价数目</li>
+<li>增加的评分数量改善了许多标签选择方法的覆盖范围。</li>
+<li>使用负面评级以及正面和负面评级的选择方法比仅使用正面评级或不使用评级的选择方法表现得更好。</li>
+</ol>
+</li>
+<li><p>使用能够标准化用户影响的标签选择策略</p>
+<p>论文中的实验结论：</p>
+<ol>
+<li>对于某些标签选择方法：如基于每个标签的搜索次数或应用次数top-k算法，其结果会被一小群“积极用户”所扭曲。按用户标准化的标记选择方法(如应用标记的用户数量num-users)比不应用标记的方法(如num-apps和num-searches)性能更好。</li>
+</ol>
+</li>
+<li><p>结合基于行为和基于评分的标签选择方法</p>
+<p>论文中的实验结论：</p>
+<ol>
+<li>基于用户自己评分的方法精确度很高，但覆盖率很低</li>
+<li>混合方法在精确度和覆盖率上表现均比较良好（topk排名k值较小时，混合方法表现略差）</li>
+</ol>
+</li>
+<li><p>可以认为用户通常对相同的标签进行一致的评价，不管它被应用到任一物品(item/标的物)上。</p>
+</li>
+</ol>
+<h2 id="预测标签质量"><a href="#预测标签质量" class="headerlink" title="预测标签质量"></a>预测标签质量</h2><h3 id="三种基于隐式行为标签选择策略"><a href="#三种基于隐式行为标签选择策略" class="headerlink" title="三种基于隐式行为标签选择策略"></a>三种基于隐式行为标签选择策略</h3><p>评价指标：标签的平均评分</p>
+<p>回答问题：<strong>我们能否根据其他用户的行为来确定一个用户想要看到的标签?</strong></p>
+<ol>
+<li>num-apps：标签被应用的数量。</li>
+<li>num-users：应用标签的用户数量</li>
+<li>num-searches：标签被搜索的数量。可以转化为对标签的搜索事件和点击事件（前端埋点、日志记录）</li>
+</ol>
+<p>存在问题：num-apps与num-searches均会受到少量极端用户的影响。对于num-apps，可能会有少数用户大量使用讨人厌的“个人”标签，导致系统展示的标签平均评分降低。而对于num-searches，可能会有一些“狂热”用户对于某些相同的标签进行频繁搜索，从而降低系统展示标签的平均评分</p>
+<h3 id="基于显式行为的标签选择策略（评分，点赞-点踩）"><a href="#基于显式行为的标签选择策略（评分，点赞-点踩）" class="headerlink" title="基于显式行为的标签选择策略（评分，点赞/点踩）"></a>基于显式行为的标签选择策略（评分，点赞/点踩）</h3><ol>
+<li><p>个人用户评分</p>
+<p>回答问题：<strong>我们可以根据用户自己的评分来确定用户想要看到的标签吗？</strong></p>
+<ol>
+<li><p><strong>user-rating</strong>：</p>
+<p>该策略认为某一用户总是喜欢他”点赞“的标签，讨厌他”点踩“的标签</p>
+</li>
+<li><p><strong>user-avg</strong>：计算同一用户对同一标签多次评分的均值（对同一标签的多次评分行为，可能发生在标签出现在不同标的物上，论文中举例是用户Sally在“28天后”和“活死人黎明”中都给“僵尸”标签打分）</p>
+</li>
+</ol>
+</li>
+<li><p>全体用户评分                                                 </p>
+<p>基于假设：大多数用户对标签有相似的意见</p>
+<p>回答问题：<strong>我们可以根据其他用户的评分来确定用户想要看到的标签吗？</strong></p>
+<ol>
+<li><p><strong>global-avg</strong></p>
+<p>计算所有用户的平均评分，作为标签评分</p>
+</li>
+<li><p><strong>consec-apps</strong></p>
+<p>基于初始相同评分数量进行top-k排序。（背后的思想是根据标签的分歧程度进行排名，例如：一个标签的赞/踩数目相近，则该标签的分歧较大，不应该推荐。论文中在Table 3中列举了10个最具争议的标签）</p>
+</li>
+<li><p><strong>consec-users</strong></p>
+<p>基于来自不同用户的初始相同评分数量进行top-k排序，对<strong>consec-apps</strong>的一个改进，避免某些积极用户对少数标签的过分关注。（论文中举例：“僵尸”标签总共有五个正面标签，但之前对“僵尸”的四个评级可能都来自同一用户）</p>
+</li>
+</ol>
+<h3 id="集成学习，综合预测"><a href="#集成学习，综合预测" class="headerlink" title="集成学习，综合预测"></a>集成学习，综合预测</h3><p>受到集成学习的启发，综合多个“专家”系统的结果，可以提高整体性能，论文中选择上述的六种策略进行混合：num-users、num-searches、user-avg、global-avg、consec-apps、consec-users</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/RecSys/" rel="tag"># RecSys</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/03/25/PersonalRank/" rel="next" title="PersonalRank">
+                  <i class="fa fa-chevron-left"></i> PersonalRank
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2021/04/18/TagBasedPR/" rel="prev" title="TagBasedPR">
+                  TagBasedPR <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    
+      <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+      <div class="widget-wrap">
+          <h3 class="widget-title">Tag Cloud</h3>
+          <div id="myCanvasContainer" class="widget tagcloud">
+              <canvas width="250" height="250" id="resCanvas" style="width=100%">
+                  <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm-and-Data-Structure/">Algorithm and Data Structure</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/">Leetcode</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Luogu/">Luogu</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RecSys/">RecSys</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reptile/">Reptile</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WHIMSY/">WHIMSY</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/">dp</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jobHunting/">jobHunting</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a><span class="tag-list-count">1</span></li></ul>
+              </canvas>
+          </div>
+      </div>
+    
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#论文阅读：The-quest-for-quality-tags"><span class="nav-number">1.</span> <span class="nav-text">论文阅读：The quest for quality tags</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#提出的核心问题"><span class="nav-number">1.1.</span> <span class="nav-text">提出的核心问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#前人的结论"><span class="nav-number">1.2.</span> <span class="nav-text">前人的结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标签评分接口"><span class="nav-number">1.3.</span> <span class="nav-text">标签评分接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预测标签质量"><span class="nav-number">1.4.</span> <span class="nav-text">预测标签质量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三种基于隐式行为标签选择策略"><span class="nav-number">1.4.1.</span> <span class="nav-text">三种基于隐式行为标签选择策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于显式行为的标签选择策略（评分，点赞-点踩）"><span class="nav-number">1.4.2.</span> <span class="nav-text">基于显式行为的标签选择策略（评分，点赞/点踩）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集成学习，综合预测"><span class="nav-number">1.4.3.</span> <span class="nav-text">集成学习，综合预测</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/MyAvatar.jpg"
+      alt="李松">
+  <p class="site-author-name" itemprop="name">李松</p>
+  <div class="site-description" itemprop="description">NoGameNoLife</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+        
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">李松</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">204k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:06</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+    <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+    <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+    <script type="text/javascript" src="/js/src/fireworks.js"></script>
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/miku.model.json"},"display":{"position":"right","width":250,"height":500},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>

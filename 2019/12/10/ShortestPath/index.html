@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <meta name="google-site-verification" content="1TSpI3V3af8vd0EtsjdHFFSQr-O_2Qw1uiHQk2QjURM"/>
+  <meta name="baidu-site-verification" content="true">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-corner-indicator.min.css?v=1.0.2">
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","width":240,"display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":2,"unescape":false,"preload":true},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="临时路线. 最短路径：什么是最短路径？最短路径是指从某一顶点出发到达另一顶点，可能存在许多路径，则某路径上的各边权值之和最小，则为最短路径  问题解法 边上权值非负情形的单源最短路径问题：Dijksta算法 边上权值为任意值的单源最短路径问题（不可有带负权边的回路）：Bellman-Ford算法 所有顶点之间的最短路径（全源最短路径）：Floyd算法和Johonson算法  值得注意的的是：最短路">
+<meta name="keywords" content="Algorithm and Data Structure">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ShortestPath">
+<meta property="og:url" content="https://a2864366212.github.io/2019/12/10/ShortestPath/index.html">
+<meta property="og:site_name" content="SteinsGate">
+<meta property="og:description" content="临时路线. 最短路径：什么是最短路径？最短路径是指从某一顶点出发到达另一顶点，可能存在许多路径，则某路径上的各边权值之和最小，则为最短路径  问题解法 边上权值非负情形的单源最短路径问题：Dijksta算法 边上权值为任意值的单源最短路径问题（不可有带负权边的回路）：Bellman-Ford算法 所有顶点之间的最短路径（全源最短路径）：Floyd算法和Johonson算法  值得注意的的是：最短路">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://a2864366212.github.io/2019/12/10/ShortestPath/DijkstraMap.png">
+<meta property="og:image" content="https://a2864366212.github.io/2019/12/10/ShortestPath/nodeTable.jpg">
+<meta property="og:image" content="https://a2864366212.github.io/2019/12/10/ShortestPath/Solution.jpg">
+<meta property="og:image" content="https://a2864366212.github.io/2019/12/10/ShortestPath/FloydMap.png">
+<meta property="og:image" content="https://a2864366212.github.io/2019/12/10/ShortestPath/FloydMapdist.png">
+<meta property="og:updated_time" content="2021-08-26T03:48:36.126Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ShortestPath">
+<meta name="twitter:description" content="临时路线. 最短路径：什么是最短路径？最短路径是指从某一顶点出发到达另一顶点，可能存在许多路径，则某路径上的各边权值之和最小，则为最短路径  问题解法 边上权值非负情形的单源最短路径问题：Dijksta算法 边上权值为任意值的单源最短路径问题（不可有带负权边的回路）：Bellman-Ford算法 所有顶点之间的最短路径（全源最短路径）：Floyd算法和Johonson算法  值得注意的的是：最短路">
+<meta name="twitter:image" content="https://a2864366212.github.io/2019/12/10/ShortestPath/DijkstraMap.png">
+  <link rel="canonical" href="https://a2864366212.github.io/2019/12/10/ShortestPath/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>ShortestPath | SteinsGate</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SteinsGate</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Good luck to you !! My Friends.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-schedule">
+      
+    
+
+    <a href="/schedule/" rel="section"><i class="fa fa-fw fa-calendar"></i>日程表</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-sitemap">
+      
+    
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-fw fa-sitemap"></i>站点地图</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-commonweal">
+      
+    
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a href="javascript:;" class="popup-trigger">
+        
+          <i class="fa fa-search fa-fw"></i>搜索</a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/a2864366212" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://a2864366212.github.io/2019/12/10/ShortestPath/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="李松">
+      <meta itemprop="description" content="NoGameNoLife">
+      <meta itemprop="image" content="/images/MyAvatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SteinsGate">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">ShortestPath
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-12-10 16:03:57" itemprop="dateCreated datePublished" datetime="2019-12-10T16:03:57+08:00">2019-12-10</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-26 11:48:36" itemprop="dateModified" datetime="2021-08-26T11:48:36+08:00">2021-08-26</time>
+              </span>
+            
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>1.8k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>2 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://blog.csdn.net/wangfang011/article/details/87932190" target="_blank" rel="noopener">临时路线</a>.</p>
+<h1 id="最短路径："><a href="#最短路径：" class="headerlink" title="最短路径："></a>最短路径：</h1><p>什么是最短路径？<br>最短路径是指从某一顶点出发到达另一顶点，可能存在许多路径，则某路径上的各边权值之和最小，则为最短路径 </p>
+<h1 id="问题解法"><a href="#问题解法" class="headerlink" title="问题解法"></a>问题解法</h1><ul>
+<li>边上权值非负情形的单源最短路径问题：Dijksta算法</li>
+<li>边上权值为任意值的单源最短路径问题（不可有带负权边的回路）：Bellman-Ford算法</li>
+<li>所有顶点之间的最短路径（全源最短路径）：Floyd算法和Johonson算法</li>
+</ul>
+<p>值得注意的的是：最短路径问题具备<em>最优子结构性质</em>，也就是两顶点之间的最短路径包括路径上其他顶点的最短路径。</p>
+<p>反证法证明：<br><a id="more"></a><br>如果不包含，也就是说有办法使得换了路径上的某些顶点，可以使得仍到达目的地，但是总路径可以变短，这显然是和最短路径相违背的。符号化一些的描述呢，有一条最短路径&lt; i,j &gt;,这条路径上会经过许多点，设为<script type="math/tex">i,v_{1},v_{2}...v_{t},j</script>，如果假设成立，那么设当前从<script type="math/tex">v_{1}到v_{2}</script>这条小路径不是他们之间的最短路径，那么总存在另一条更短的路径可以使得从<script type="math/tex">v_{1}到v_{2}</script>更短，这样就会造成i可以到j，且路径缩短，与大前提&lt; i,j &gt;是最短路径相违背，得证</p>
+<h2 id="带权图的单源最短路径"><a href="#带权图的单源最短路径" class="headerlink" title="带权图的单源最短路径"></a>带权图的单源最短路径</h2><h3 id="Floyd算法-Floyd-Warshall算法"><a href="#Floyd算法-Floyd-Warshall算法" class="headerlink" title="Floyd算法\Floyd-Warshall算法"></a>Floyd算法\Floyd-Warshall算法</h3><p><a href="https://www.cnblogs.com/wangyuliang/p/9216365.html" target="_blank" rel="noopener">Floyd算法</a>.<br>有一说一，讲的可以ヾ(≧▽≦*)o<br>简述一下：<br>初始化图-&gt;加载各点的路径长（矩阵存储）-&gt;顺序引入新的中转点-&gt;遍历更新路径长的矩阵-&gt;继续引入继续更新</p>
+<pre><code>for(k=1;k&lt;=n;k++)
+{//迭代更新新的中转点
+    for(i=1;i&lt;=n;i++)
+    {//两层循环 遍历更新 路径长度矩阵 的值
+        for(j=1;j&lt;=n;j++)
+        {
+            if(e[i][j]&gt;e[i][k]+e[k][j])
+            {
+                e[i][j]=e[i][k]+e[k][j];
+            } 
+        }  
+    }  
+}     
+</code></pre><h2 id="边权非负情形"><a href="#边权非负情形" class="headerlink" title="边权非负情形"></a>边权非负情形</h2><h3 id="Dijkstra算法"><a href="#Dijkstra算法" class="headerlink" title="Dijkstra算法"></a>Dijkstra算法</h3><p><strong>源点</strong><br>该算法使用的是<strong>贪心策略</strong>：每次都找出剩余顶点中与源点距离最近的一个顶点。<br>参考：<br><a href="https://blog.csdn.net/zhangxiangDavaid/article/details/38360337" target="_blank" rel="noopener">Dijkstra算法</a></p>
+<h4 id="算法思想"><a href="#算法思想" class="headerlink" title="算法思想"></a>算法思想</h4><p>带权图G=<v,e>令S为已确定了最短路径顶点的集合，则可用V-S(V集合减去S集合)表示剩余未确定最短路径顶点的集合。假设V0是源点，则初始 S={V0}。用数组Distance表示源点V0到其余顶点的路径长度，用数组pre[i]表示最短路径序列上顶点i的前一个顶点。初始时，pre[i]都是源点的下标。接下来需重复两个步骤：</v,e></p>
+<p>从当前Distance[i]找出最小的一个，记录其下标v=i，源点V0到顶点Vv的最短路径即已确定，把Vv加入S。<br>更新源点到剩余顶点的最短路径长度。更新方法是：以上一步的顶点Vv为中间点，若Distance[v]+weight(v,i)小于Distance[i]，则修改值：pre[i]=v;Distance[i]=Distance[v]+weight(v,i);<br>重复以上两个步骤，直至所有顶点的最短路径都已找到.。<br>需要指出，Dijkstra算法求解的不仅是有向图，无向图也是可以的。下面给出一个完整的有向带权图的实例：<br><img src="/2019/12/10/ShortestPath/DijkstraMap.png" alt="ShortestPath"><br><img src="/2019/12/10/ShortestPath/nodeTable.jpg" alt="ShortestPath"><br><img src="/2019/12/10/ShortestPath/Solution.jpg" alt="ShortestPath"></p>
+<h2 id="边上权值为任意值的情形（不可有带负权边的回路）"><a href="#边上权值为任意值的情形（不可有带负权边的回路）" class="headerlink" title="边上权值为任意值的情形（不可有带负权边的回路）"></a>边上权值为任意值的情形（不可有带负权边的回路）</h2><h3 id="SPFA算法-Bellman-Ford算法"><a href="#SPFA算法-Bellman-Ford算法" class="headerlink" title="SPFA算法\Bellman-Ford算法"></a>SPFA算法\Bellman-Ford算法</h3><p><img src="/2019/12/10/ShortestPath/FloydMap.png" alt="ShortestPath"></p>
+<ul>
+<li>核心思想：当图中没有由带负权值的边组成的回路时，有n个顶点的图中任意两点之间如果存在最短路径，此路径最多有n-1条边。这是显然的，从i到j的路径,最多就是把其他所有节点经历过一遍，何况是最短路径</li>
+</ul>
+<h4 id="算法思想："><a href="#算法思想：" class="headerlink" title="算法思想："></a>算法思想：</h4><pre><code>记dist[u]为源点v到其他顶点u的最短路径长度
+</code></pre><p><img src="/2019/12/10/ShortestPath/FloydMapdist.png" alt="ShortestPath"><br>先看一下红线标注的文字，<strong>最多</strong>这两个字很精髓，这样的话可以发现<script type="math/tex">dist^{i}[u]包含了dist^{i}[u]</script>（最多包含三条边当然范围比最多包含两条边大了既然范围大，那么其利用的条件与资源就可以越充分）<br>为什么最终目的是要求出<script type="math/tex">dist^{n-1}[u]</script>呢，由上面的理解可以知道，<script type="math/tex">dist^{i}[u]</script>的i越大，其范围越大，所使用的的资源越充分，更接近于答案<br>递归关系式：</p>
+<script type="math/tex; mode=display">
+dist^{k}[u]=min\{dist^{k-1}[u],min\{dist^{k-1}[j]+Edge[j][u]\}\}</script><p>递归出口：<script type="math/tex">dist^{1}[u]=Edge[v][u]</script></p>
+<p>当然，可以使用循环从最底层逐层往上计算</p>
+<h3 id="Johnson算法"><a href="#Johnson算法" class="headerlink" title="Johnson算法"></a>Johnson算法</h3><h3 id="A-算法"><a href="#A-算法" class="headerlink" title="A*算法"></a>A*算法</h3>
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Algorithm-and-Data-Structure/" rel="tag"># Algorithm and Data Structure</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/12/04/HNUACM10011/" rel="next" title="HNUACM10011">
+                  <i class="fa fa-chevron-left"></i> HNUACM10011
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/12/17/DynamicProgramming/" rel="prev" title="DynamicProgramming">
+                  DynamicProgramming <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    
+      <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+      <div class="widget-wrap">
+          <h3 class="widget-title">Tag Cloud</h3>
+          <div id="myCanvasContainer" class="widget tagcloud">
+              <canvas width="250" height="250" id="resCanvas" style="width=100%">
+                  <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm-and-Data-Structure/">Algorithm and Data Structure</a><span class="tag-list-count">17</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/">Leetcode</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Luogu/">Luogu</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RecSys/">RecSys</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reptile/">Reptile</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WHIMSY/">WHIMSY</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dp/">dp</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jobHunting/">jobHunting</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a><span class="tag-list-count">1</span></li></ul>
+              </canvas>
+          </div>
+      </div>
+    
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#最短路径："><span class="nav-number">1.</span> <span class="nav-text">最短路径：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#问题解法"><span class="nav-number">2.</span> <span class="nav-text">问题解法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#带权图的单源最短路径"><span class="nav-number">2.1.</span> <span class="nav-text">带权图的单源最短路径</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Floyd算法-Floyd-Warshall算法"><span class="nav-number">2.1.1.</span> <span class="nav-text">Floyd算法\Floyd-Warshall算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#边权非负情形"><span class="nav-number">2.2.</span> <span class="nav-text">边权非负情形</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dijkstra算法"><span class="nav-number">2.2.1.</span> <span class="nav-text">Dijkstra算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#算法思想"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">算法思想</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#边上权值为任意值的情形（不可有带负权边的回路）"><span class="nav-number">2.3.</span> <span class="nav-text">边上权值为任意值的情形（不可有带负权边的回路）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SPFA算法-Bellman-Ford算法"><span class="nav-number">2.3.1.</span> <span class="nav-text">SPFA算法\Bellman-Ford算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#算法思想："><span class="nav-number">2.3.1.1.</span> <span class="nav-text">算法思想：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Johnson算法"><span class="nav-number">2.3.2.</span> <span class="nav-text">Johnson算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#A-算法"><span class="nav-number">2.3.3.</span> <span class="nav-text">A*算法</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/MyAvatar.jpg"
+      alt="李松">
+  <p class="site-author-name" itemprop="name">李松</p>
+  <div class="site-description" itemprop="description">NoGameNoLife</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+        
+      </div>
+    
+  </nav>
+</div>
+
+
+
+      </div>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">李松</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">204k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:06</span>
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+    
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+  
+
+  
+
+  
+
+
+  
+    <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+    <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+    <script type="text/javascript" src="/js/src/fireworks.js"></script>
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/miku.model.json"},"display":{"position":"right","width":250,"height":500},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body>
+</html>
